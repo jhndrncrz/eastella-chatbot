@@ -1,0 +1,14 @@
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css')}}">
+    <script src="{{ url_for('static', filename='scripts/script.js')}}" defer></script>
+</head>
+<body>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
+
+
