@@ -23,6 +23,7 @@ jsonpatch
 jsonpointer
 langchain
 langchain-community
+langchain_huggingface
 langchain-core
 langchain-text-splitters
 langsmith
