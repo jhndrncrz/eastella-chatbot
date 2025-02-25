@@ -1,0 +1,5 @@
+Flask
+langchain
+langchain_huggingface
+faiss-cpu
+huggingface_hub

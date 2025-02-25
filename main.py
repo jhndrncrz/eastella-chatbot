@@ -1,19 +1,24 @@
-from flask import Flask, jsonify, request
-from flask.templating import render_template
-
+import os
+from flask import Flask, jsonify, request, render_template
 from langchain.chains import RetrievalQA
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.llms import LlamaCpp
+from langchain.llms import HuggingFaceLLM  # Change to HuggingFaceLLM for API integration
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.document_loaders import PyPDFDirectoryLoader
 
-import sys
-
 app = Flask(__name__)
 
+# Configure PDF directory dynamically for deployment
+dirname = os.path.dirname(__file__)
+pdf_dir = dirname # os.path.join(dirname, 'pdfs')  # Assuming PDFs are in 'pdfs' folder
+
+# Ensure that the PDF directory exists
+if not os.path.exists(pdf_dir):
+    os.makedirs(pdf_dir)
+
 # Load PDF documents and prepare the question-answering system
-loader = PyPDFDirectoryLoader(r"C:\Users\User\OneDrive\Desktop\FLASK_CHATBOT")
+loader = PyPDFDirectoryLoader(pdf_dir)  # Change the loader to dynamically look in 'pdfs'
 data = loader.load()
 
 # Split the text into chunks
@@ -24,14 +29,9 @@ text_chunks = text_splitter.split_documents(data)
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 vector_store = FAISS.from_documents(text_chunks, embedding=embeddings)
 
-# Initialize LlamaCpp model
-llm = LlamaCpp(
-    streaming=True,
-    model_path=r"C:\Users\User\OneDrive\Desktop\Flask_Chatbot\mistral-7b-instruct-v0.1.Q4_K_M.gguf",
-    temperature=0.75,
-    top_p=1,
-    verbose=True,
-    n_ctx=4096
+# Use HuggingFace API instead of local model (Change LlamaCpp to HuggingFaceLLM for deployment)
+llm = HuggingFaceLLM(
+    model_name="bigscience/bloomz-7b1"  # Example: Replace with an available Hugging Face model
 )
 
 # Create QA chain
@@ -44,7 +44,7 @@ def generate_EASTella_response(user_query):
 @app.route('/home')
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("home.html")  # Ensure you have home.html in the templates directory
 
 @app.route("/ask", methods=["POST"])
 def ask():
@@ -55,4 +55,4 @@ def ask():
     return jsonify({"answer": "Sorry, I couldn't understand that."})
 
 if __name__ == '__main__':
-  app.run()
+  app.run(debug=True)  # Enable debug for local development
